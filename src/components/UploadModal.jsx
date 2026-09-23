@@ -1,11 +1,14 @@
 import { useState, useRef } from 'react'
-import { X, Upload, Image as ImageIcon, Loader2 } from 'lucide-react'
+import { X, Upload, Image as ImageIcon, Loader2, Calendar } from 'lucide-react'
+import exifr from 'exifr'
 
 export default function UploadModal({ isOpen, onClose, onUpload }) {
   const [file, setFile] = useState(null)
   const [preview, setPreview] = useState(null)
   const [title, setTitle] = useState('')
   const [description, setDescription] = useState('')
+  const [dateTaken, setDateTaken] = useState('')
+  const [dateStatus, setDateStatus] = useState('')
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
   const [dragOver, setDragOver] = useState(false)
@@ -13,7 +16,44 @@ export default function UploadModal({ isOpen, onClose, onUpload }) {
 
   if (!isOpen) return null
 
-  const handleFileSelect = (selectedFile) => {
+  const formatDate = (date) => {
+    if (!date || !(date instanceof Date) || isNaN(date)) return ''
+    const day = String(date.getDate()).padStart(2, '0')
+    const month = String(date.getMonth() + 1).padStart(2, '0')
+    const year = date.getFullYear()
+    return `${day}/${month}/${year}`
+  }
+
+  const extractDateFromImage = async (imageFile) => {
+    try {
+      const exif = await exifr.parse(imageFile, {
+        pick: ['DateTimeOriginal', 'CreateDate', 'ModifyDate', 'DateTime'],
+      })
+
+      const rawDate =
+        exif?.DateTimeOriginal ||
+        exif?.CreateDate ||
+        exif?.DateTime ||
+        exif?.ModifyDate
+
+      if (rawDate) {
+        const formatted = formatDate(new Date(rawDate))
+        if (formatted) {
+          setDateTaken(formatted)
+          setDateStatus('Tanggal berhasil dideteksi dari foto')
+          return
+        }
+      }
+      setDateTaken('')
+      setDateStatus('Tanggal tidak ditemukan di metadata foto')
+    } catch (err) {
+      console.warn('Gagal membaca EXIF:', err)
+      setDateTaken('')
+      setDateStatus('Tanggal tidak ditemukan di metadata foto')
+    }
+  }
+
+  const handleFileSelect = async (selectedFile) => {
     if (!selectedFile) return
     if (!selectedFile.type.startsWith('image/')) {
       setError('Hanya file gambar yang diperbolehkan')
@@ -23,10 +63,14 @@ export default function UploadModal({ isOpen, onClose, onUpload }) {
       setError('Ukuran file maksimal 10MB')
       return
     }
+
     setError('')
     setFile(selectedFile)
     setPreview(URL.createObjectURL(selectedFile))
     if (!title) setTitle(selectedFile.name.replace(/\.[^/.]+$/, ''))
+    setDateTaken('')
+    setDateStatus('Mendeteksi tanggal...')
+    await extractDateFromImage(selectedFile)
   }
 
   const handleDrop = (e) => {
@@ -45,11 +89,25 @@ export default function UploadModal({ isOpen, onClose, onUpload }) {
     setLoading(true)
     setError('')
     try {
-      await onUpload({ file, title, description })
+      let fullDescription = description.trim()
+      if (dateTaken) {
+        fullDescription = fullDescription
+          ? `${fullDescription}\nDate taken on ${dateTaken}`
+          : `Date taken on ${dateTaken}`
+      }
+
+      await onUpload({
+        file,
+        title,
+        description: fullDescription,
+      })
+
       setFile(null)
       setPreview(null)
       setTitle('')
       setDescription('')
+      setDateTaken('')
+      setDateStatus('')
       onClose()
     } catch (err) {
       setError(err.message || 'Gagal mengunggah gambar')
@@ -64,13 +122,18 @@ export default function UploadModal({ isOpen, onClose, onUpload }) {
     setPreview(null)
     setTitle('')
     setDescription('')
+    setDateTaken('')
+    setDateStatus('')
     setError('')
     onClose()
   }
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-      <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" onClick={handleClose} />
+      <div
+        className="absolute inset-0 bg-black/50 backdrop-blur-sm"
+        onClick={handleClose}
+      />
 
       <div className="relative bg-white shadow-2xl w-full max-w-lg p-6 sm:p-8 max-h-[90vh] overflow-y-auto">
         <button
@@ -81,7 +144,7 @@ export default function UploadModal({ isOpen, onClose, onUpload }) {
         </button>
 
         <h2 className="text-2xl font-bold text-gray-900 mb-1">Upload gambar</h2>
-        <p className="text-gray-500 text-sm mb-6">Bagikan momenmu ke gallery Memento</p>
+        <p className="text-gray-500 text-sm mb-6">Bagikan momenmu ke Memento!</p>
 
         {error && (
           <div className="mb-4 p-3 bg-red-50 border border-red-100 rounded-lg text-red-600 text-sm">
@@ -116,7 +179,11 @@ export default function UploadModal({ isOpen, onClose, onUpload }) {
 
             {preview ? (
               <div className="relative">
-                <img src={preview} alt="Preview" className="max-h-48 mx-auto rounded-lg object-contain" />
+                <img
+                  src={preview}
+                  alt="Preview"
+                  className="max-h-48 mx-auto rounded-lg object-contain"
+                />
                 <p className="mt-2 text-xs text-gray-500">Klik untuk ganti gambar</p>
               </div>
             ) : (
@@ -124,14 +191,19 @@ export default function UploadModal({ isOpen, onClose, onUpload }) {
                 <div className="w-14 h-14 mx-auto mb-3 rounded-full bg-indigo-50 flex items-center justify-center">
                   <ImageIcon className="w-7 h-7 text-indigo-400" />
                 </div>
-                <p className="text-sm font-medium text-gray-700">Drag & drop atau klik untuk pilih</p>
+                <p className="text-sm font-medium text-gray-700">
+                  Drag & drop atau klik untuk pilih
+                </p>
                 <p className="text-xs text-gray-400 mt-1">PNG, JPG, WEBP hingga 10MB</p>
               </div>
             )}
           </div>
 
+          {/* Title */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1.5">Judul</label>
+            <label className="block text-sm font-medium text-gray-700 mb-1.5">
+              Judul
+            </label>
             <input
               type="text"
               value={title}
@@ -141,8 +213,11 @@ export default function UploadModal({ isOpen, onClose, onUpload }) {
             />
           </div>
 
+          {/* Description */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1.5">Deskripsi singkat</label>
+            <label className="block text-sm font-medium text-gray-700 mb-1.5">
+              Deskripsi singkat
+            </label>
             <textarea
               value={description}
               onChange={(e) => setDescription(e.target.value)}
@@ -150,6 +225,31 @@ export default function UploadModal({ isOpen, onClose, onUpload }) {
               rows={3}
               className="w-full px-4 py-2.5 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent text-sm resize-none"
             />
+          </div>
+
+          {/* Tanggal otomatis */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1.5">
+              Tanggal pengambilan gambar
+            </label>
+            <div className="flex items-center gap-2 px-4 py-2.5 border border-gray-200 rounded-xl bg-gray-50 text-sm">
+              <Calendar className="w-4 h-4 text-gray-400 shrink-0" />
+              {dateTaken ? (
+                <span className="text-gray-800 font-medium">
+                  Date taken on {dateTaken}
+                </span>
+              ) : (
+                <span className="text-gray-400">
+                  {dateStatus || 'Pilih gambar terlebih dahulu'}
+                </span>
+              )}
+            </div>
+            {dateStatus && dateTaken && (
+              <p className="mt-1.5 text-xs text-green-600">{dateStatus}</p>
+            )}
+            {dateStatus && !dateTaken && file && (
+              <p className="mt-1.5 text-xs text-amber-600">{dateStatus}</p>
+            )}
           </div>
 
           <button

@@ -12,9 +12,7 @@ export default function ImageGrid({ images, onDelete }) {
   return (
     <>
       <div className="px-4 sm:px-6 lg:px-8 py-6 max-w-7xl mx-auto">
-        <ResponsiveMasonry
-          columnsCountBreakPoints={{ 350: 1, 750: 2, 900: 3, 1200: 4 }}
-        >
+        <ResponsiveMasonry columnsCountBreakPoints={{ 350: 1, 750: 2, 900: 3, 1200: 4 }}>
           <Masonry gutter="16px">
             {images.map((image) => (
               <div
@@ -30,13 +28,14 @@ export default function ImageGrid({ images, onDelete }) {
                 />
                 {/* Overlay on hover */}
                 <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors flex items-end">
-                  <div className="p-3 opacity-0 group-hover:opacity-100 transition-opacity w-full bg-linear-to-t from-black/60 to-transparent">
-                    <p className="text-white text-sm font-medium truncate">
-                      {image.title}
-                    </p>
+                  <div className="p-3 opacity-0 group-hover:opacity-100 transition-opacity w-full bg-linear-to-t from-black/70 to-transparent rounded-b-xl">
+                    <p className="text-white text-sm font-medium truncate">{image.title}</p>
                     {image.description && (
-                      <p className="text-white/80 text-xs truncate">
-                        {image.description}
+                      <p className="text-white/80 text-xs truncate mt-0.5">
+                        {image.description
+                          .split('\n')
+                          .filter((line) => !line.startsWith('Date taken on '))
+                          .join(' ')}
                       </p>
                     )}
                   </div>
@@ -67,15 +66,28 @@ export default function ImageGrid({ images, onDelete }) {
             <img
               src={selectedImage.url}
               alt={selectedImage.title}
-              className="max-h-[70vh] w-auto object-contain rounded-lg"
+              className="max-h-[65vh] w-auto object-contain rounded-lg"
             />
             <div className="mt-4 text-center text-white">
               <h3 className="text-lg font-semibold">{selectedImage.title}</h3>
+
               {selectedImage.description && (
-                <p className="text-white/70 text-sm mt-1">
-                  {selectedImage.description}
+                <p className="text-white/70 text-sm mt-1 whitespace-pre-line">
+                  {selectedImage.description
+                    .split('\n')
+                    .filter((line) => !line.startsWith('Date taken on '))
+                    }
                 </p>
               )}
+
+              {selectedImage.description?.includes('Date taken on ') && (
+                <p className="text-white/90 text-sm mt-2 font-medium">
+                  {selectedImage.description
+                    .split('\n')
+                    .find((line) => line.startsWith('Date taken on '))}
+                </p>
+              )}
+
               {user && selectedImage.user_id === user.id && onDelete && (
                 <button
                   onClick={() => {

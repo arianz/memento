@@ -1,18 +1,14 @@
-# Memento 🖼️
+# Memento
 
-Aplikasi web gallery modern untuk menyimpan dan menampilkan kenangan (memento).  
-Dibangun dengan **React (Vite)**, **Tailwind CSS**, **Supabase** (Auth + Storage + Database), dan **react-responsive-masonry**.
+Aplikasi web gallery modern untuk menyimpan dan menampilkan momen-momen Anda (memento).  
+Dibangun dengan **React (Vite)**, **Tailwind CSS**, dan **Supabase**.
 
 ## Fitur
 
-- **Landing Page** dengan hero collage gambar + tombol "Get ready"
-- **Gallery** dengan Masonry Grid layout yang responsif
-- **Empty State** saat belum ada gambar
 - **Auth** (Login / Signup) via Supabase Auth
 - **Upload gambar** (hanya user yang sudah login) ke Supabase Storage
 - Search bar & filter di navbar
 - Lightbox untuk melihat detail gambar
-- Desain bersih, modern, dan fully responsive
 
 ## Setup
 
