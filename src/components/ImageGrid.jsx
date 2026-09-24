@@ -12,8 +12,8 @@ export default function ImageGrid({ images, onDelete }) {
   return (
     <>
       <div className="px-4 sm:px-6 lg:px-8 py-6 max-w-7xl mx-auto">
-        <ResponsiveMasonry columnsCountBreakPoints={{ 350: 1, 750: 2, 900: 3, 1200: 4 }}>
-          <Masonry gutter="16px">
+        <ResponsiveMasonry columnsCountBreakPoints={{ 0: 2, 750: 2, 900: 3, 1200: 4 }}>
+          <Masonry gutter="12px">
             {images.map((image) => (
               <div
                 key={image.id}

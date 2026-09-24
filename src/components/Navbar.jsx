@@ -56,7 +56,7 @@ export default function Navbar({
   const handleSignOut = async () => {
     await signOut()
     setShowUserMenu(false)
-    navigate('/login')
+    navigate('/auth')
   }
 
   const hasActiveFilter = filterYear || filterMonth
@@ -90,6 +90,7 @@ export default function Navbar({
 
           {/* Right side actions */}
           <div className="flex items-center gap-2 sm:gap-3">
+            {/* Filter button + dropdown */}
             <div className="relative" ref={filterRef}>
               <button
                 onClick={() => setShowFilter(!showFilter)}
@@ -107,10 +108,26 @@ export default function Navbar({
               </button>
 
               {showFilter && (
-                <div className="absolute right-0 mt-2 w-64 bg-white rounded-xl shadow-lg border border-gray-100 p-4 z-50">
-                  <p className="text-sm font-semibold text-gray-800 mb-3">
-                    Filter tanggal
-                  </p>
+                <div
+                  className="
+                    fixed sm:absolute
+                    left-4 right-4 sm:left-auto sm:right-0
+                    top-16 sm:top-auto sm:mt-2
+                    w-auto sm:w-64
+                    bg-white rounded-xl shadow-lg border border-gray-100 p-4 z-50
+                  "
+                >
+                  <div className="flex items-center justify-between mb-3">
+                    <p className="text-sm font-semibold text-gray-800">
+                      Filter tanggal
+                    </p>
+                    <button
+                      onClick={() => setShowFilter(false)}
+                      className="sm:hidden p-1 rounded-full hover:bg-gray-100"
+                    >
+                      <X className="w-4 h-4 text-gray-500" />
+                    </button>
+                  </div>
 
                   {/* Tahun */}
                   <div className="mb-3">
@@ -165,7 +182,6 @@ export default function Navbar({
                     )}
                   </div>
 
-                  {/* Reset */}
                   {hasActiveFilter && (
                     <button
                       onClick={() => {

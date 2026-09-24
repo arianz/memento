@@ -14,7 +14,7 @@ function ProtectedRoute({ children }) {
     )
   }
   if (!isAuthenticated) {
-    return <Navigate to="/login" replace />
+    return <Navigate to="/auth" replace />
   }
   return children
 }
@@ -25,7 +25,7 @@ export default function App() {
       <BrowserRouter>
         <Routes>
           <Route path="/" element={<LandingPage />} />
-          <Route path="/login" element={<AuthPage />} />
+          <Route path="/auth" element={<AuthPage />} />
           <Route
             path="/gallery"
             element={
