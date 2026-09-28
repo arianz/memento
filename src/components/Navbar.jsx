@@ -1,10 +1,11 @@
 import { useState, useRef, useEffect } from 'react'
-import { Search, Filter, User, LogOut, Upload, Menu, X } from 'lucide-react'
+import { Search, Filter, User, LogOut, Plus, Menu, X, Moon, Sun } from 'lucide-react'
 import { useAuth } from '../context/AuthContext'
-import { useNavigate } from 'react-router-dom'
+import { useTheme } from '../context/ThemeContext'
+import { useNavigate, Link } from 'react-router-dom'
 
 const MONTHS = [
-  { value: '', label: 'Semua bulan' },
+  { value: '', label: 'All months' },
   { value: '01', label: 'Januari' },
   { value: '02', label: 'Februari' },
   { value: '03', label: 'Maret' },
@@ -32,6 +33,7 @@ export default function Navbar({
   onFilterChange,
 }) {
   const { user, signOut, isAuthenticated } = useAuth()
+  const { dark, toggle } = useTheme()
   const navigate = useNavigate()
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const [showUserMenu, setShowUserMenu] = useState(false)
@@ -59,81 +61,60 @@ export default function Navbar({
     navigate('/auth')
   }
 
-  const hasActiveFilter = filterYear || filterMonth
+  const hasActiveFilter = !!(filterYear || filterMonth)
 
   return (
-    <nav className="sticky top-0 z-50 bg-white/80 backdrop-blur-md border-b border-gray-200">
+    <nav className="sticky top-0 z-50 bg-[#fafaf8]/90 dark:bg-[#0c0c0c]/90 backdrop-blur-md border-b border-black/5 dark:border-white/10">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex items-center justify-between h-16">
-          {/* Logo */}
-          <div className="shrink-0">
-            <a href="/" className="flex items-center gap-2">
-              <span className="text-2xl font-bold bg-linear-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">
-                Memento
-              </span>
-            </a>
-          </div>
+        <div className="flex items-center justify-between h-16 gap-3">
+          <Link to="/" className="flex items-center gap-2.5 shrink-0">
+            <div className="w-9 h-9 rounded-full bg-black dark:bg-white text-white dark:text-black flex items-center justify-center font-serif font-bold text-lg">
+              M
+            </div>
+            <div className="hidden sm:block leading-tight">
+              <p className="font-serif font-semibold text-[15px] tracking-tight">Memento</p>
+              <p className="text-[10px] uppercase tracking-widest text-gray-400 dark:text-gray-500">
+                Editorial Archives
+              </p>
+            </div>
+          </Link>
 
-          {/* Search Bar - Desktop */}
-          <div className="hidden md:flex flex-1 max-w-md mx-8">
-            <form onSubmit={handleSearch} className="w-full relative">
-              <input
-                type="text"
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                placeholder="Search moments..."
-                className="w-full pl-10 pr-4 py-2 rounded-full border border-gray-200 bg-gray-50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all text-sm"
-              />
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
-            </form>
-          </div>
+          <form onSubmit={handleSearch} className="flex-1 max-w-md relative hidden md:block">
+            <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+            <input
+              type="text"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              placeholder="Search moments..."
+              className="w-full pl-10 pr-4 py-2 rounded-full border border-black/10 dark:border-white/15 bg-white dark:bg-white/5 text-sm placeholder:text-stone-400 dark:placeholder:text-zinc-500 focus:outline-none focus:ring-2 focus:ring-black/20 dark:focus:ring-white/20"
+            />
+          </form>
 
-          {/* Right side actions */}
-          <div className="flex items-center gap-2 sm:gap-3">
-            {/* Filter button + dropdown */}
+          <div className="flex items-center gap-1.5 sm:gap-2">
             <div className="relative" ref={filterRef}>
               <button
                 onClick={() => setShowFilter(!showFilter)}
-                className={`p-2 rounded-full transition-colors relative ${
+                className={`p-2 rounded-full transition-colors ${
                   hasActiveFilter
-                    ? 'bg-indigo-100 text-indigo-600'
-                    : 'hover:bg-gray-100 text-gray-600'
+                    ? 'bg-black text-white dark:bg-white dark:text-black'
+                    : 'hover:bg-black/5 dark:hover:bg-white/10 text-gray-600 dark:text-gray-300'
                 }`}
                 title="Filter"
               >
                 <Filter className="w-5 h-5" />
-                {hasActiveFilter && (
-                  <span className="absolute top-1 right-1 w-2 h-2 bg-indigo-600 rounded-full" />
-                )}
               </button>
 
               {showFilter && (
-                <div
-                  className="
-                    fixed sm:absolute
-                    left-4 right-4 sm:left-auto sm:right-0
-                    top-16 sm:top-auto sm:mt-2
-                    w-auto sm:w-64
-                    bg-white rounded-xl shadow-lg border border-gray-100 p-4 z-50
-                  "
-                >
+                <div className="fixed sm:absolute left-4 right-4 sm:left-auto sm:right-0 top-16 sm:top-auto sm:mt-2 w-auto sm:w-64 bg-white dark:bg-[#1a1a1a] rounded-2xl shadow-xl border border-black/5 dark:border-white/10 p-4 z-50">
                   <div className="flex items-center justify-between mb-3">
-                    <p className="text-sm font-semibold text-gray-800">
-                      Filter tanggal
-                    </p>
-                    <button
-                      onClick={() => setShowFilter(false)}
-                      className="sm:hidden p-1 rounded-full hover:bg-gray-100"
-                    >
-                      <X className="w-4 h-4 text-gray-500" />
+                    <p className="text-sm font-semibold">Date Filter</p>
+                    <button onClick={() => setShowFilter(false)} className="sm:hidden p-1">
+                      <X className="w-4 h-4" />
                     </button>
                   </div>
 
-                  {/* Tahun */}
                   <div className="mb-3">
-                    <label className="block text-xs font-medium text-gray-500 mb-1">
-                      Tahun
-                    </label>
+                    <label className="block text-xs text-gray-500 dark:text-gray-300 mb-1">Year</label>
                     <select
                       value={filterYear}
                       onChange={(e) =>
@@ -142,9 +123,9 @@ export default function Navbar({
                           month: e.target.value ? filterMonth : '',
                         })
                       }
-                      className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                      className="w-full px-3 py-2 border border-black/10 dark:border-white/15 rounded-xl text-sm bg-transparent focus:outline-none dark:bg-[#1a1a1a]"
                     >
-                      <option value="">Semua tahun</option>
+                      <option value="">All years</option>
                       {YEARS.map((y) => (
                         <option key={y} value={String(y)}>
                           {y}
@@ -153,21 +134,15 @@ export default function Navbar({
                     </select>
                   </div>
 
-                  {/* Bulan */}
                   <div className="mb-4">
-                    <label className="block text-xs font-medium text-gray-500 mb-1">
-                      Bulan
-                    </label>
+                    <label className="block text-xs text-gray-500 dark:text-gray-300 mb-1">Month</label>
                     <select
                       value={filterMonth}
                       onChange={(e) =>
-                        onFilterChange?.({
-                          year: filterYear,
-                          month: e.target.value,
-                        })
+                        onFilterChange?.({ year: filterYear, month: e.target.value })
                       }
                       disabled={!filterYear}
-                      className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 disabled:bg-gray-50 disabled:text-gray-400"
+                      className="w-full px-3 py-2 border border-black/10 dark:border-white/15 rounded-xl text-sm bg-transparent focus:outline-none disabled:opacity-40 dark:bg-[#1a1a1a]"
                     >
                       {MONTHS.map((m) => (
                         <option key={m.value} value={m.value}>
@@ -176,9 +151,7 @@ export default function Navbar({
                       ))}
                     </select>
                     {!filterYear && (
-                      <p className="text-xs text-gray-400 mt-1">
-                        Pilih tahun dulu untuk filter bulan
-                      </p>
+                      <p className="text-xs text-gray-400 mt-1">Select a year first to filter by month</p>
                     )}
                   </div>
 
@@ -188,46 +161,49 @@ export default function Navbar({
                         onFilterChange?.({ year: '', month: '' })
                         setShowFilter(false)
                       }}
-                      className="w-full py-2 text-sm text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+                      className="w-full py-2 text-sm text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-xl"
                     >
-                      Reset filter
+                      Reset Filter
                     </button>
                   )}
                 </div>
               )}
             </div>
 
-            {/* Upload button */}
             <button
-              onClick={onUploadClick}
-              className="flex items-center gap-2 px-3 py-2 rounded-full bg-indigo-600 text-white hover:bg-indigo-700 transition-colors text-sm font-medium"
+              onClick={toggle}
+              className="p-2 rounded-full hover:bg-black/5 dark:hover:bg-white/10 text-gray-600 dark:text-gray-300 transition-colors"
+              title="Toggle theme"
             >
-              <Upload className="w-4 h-4" />
-              <span className="hidden sm:inline">Upload</span>
+              {dark ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
             </button>
 
-            {/* Profile */}
+            <button
+              onClick={onUploadClick}
+              className="flex items-center gap-1.5 px-3 sm:px-4 py-2 rounded-full bg-black dark:bg-white text-white dark:text-black text-sm font-medium hover:opacity-90 transition-opacity"
+            >
+              <Plus className="w-4 h-4" />
+              <span className="hidden sm:inline">Add Moment</span>
+            </button>
+
             {isAuthenticated && (
               <div className="relative">
                 <button
                   onClick={() => setShowUserMenu(!showUserMenu)}
-                  className="flex items-center gap-2 p-2 rounded-full hover:bg-gray-100 transition-colors"
+                  className="p-2 rounded-full hover:bg-black/5 dark:hover:bg-white/10"
                 >
-                  <div className="w-8 h-8 rounded-full bg-indigo-100 flex items-center justify-center">
-                    <User className="w-4 h-4 text-indigo-600" />
+                  <div className="w-8 h-8 rounded-full bg-black/5 dark:bg-white/10 flex items-center justify-center">
+                    <User className="w-4 h-4" />
                   </div>
                 </button>
-
                 {showUserMenu && (
-                  <div className="absolute right-0 mt-2 w-56 bg-white rounded-xl shadow-lg border border-gray-100 py-2 z-50">
-                    <div className="px-4 py-2 border-b border-gray-100">
-                      <p className="text-sm font-medium text-gray-900 truncate">
-                        {user?.email}
-                      </p>
+                  <div className="absolute right-0 mt-2 w-56 bg-white dark:bg-[#1a1a1a] rounded-2xl shadow-xl border border-black/5 dark:border-white/10 py-2 z-50">
+                    <div className="px-4 py-2 border-b border-black/5 dark:border-white/10">
+                      <p className="text-sm font-medium truncate">{user?.email}</p>
                     </div>
                     <button
                       onClick={handleSignOut}
-                      className="w-full flex items-center gap-2 px-4 py-2 text-sm text-red-600 hover:bg-red-50 transition-colors"
+                      className="w-full flex items-center gap-2 px-4 py-2 text-sm text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20"
                     >
                       <LogOut className="w-4 h-4" />
                       Sign out
@@ -237,32 +213,26 @@ export default function Navbar({
               </div>
             )}
 
-            {/* Mobile menu toggle */}
             <button
-              className="md:hidden p-2 rounded-full hover:bg-gray-100"
+              className="md:hidden p-2 rounded-full hover:bg-black/5 dark:hover:bg-white/10"
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
             >
-              {mobileMenuOpen ? (
-                <X className="w-5 h-5" />
-              ) : (
-                <Menu className="w-5 h-5" />
-              )}
+              {mobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
             </button>
           </div>
         </div>
 
-        {/* Mobile search */}
         {mobileMenuOpen && (
           <div className="md:hidden pb-4">
             <form onSubmit={handleSearch} className="relative">
+              <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
               <input
                 type="text"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 placeholder="Search moments..."
-                className="w-full pl-10 pr-4 py-2 rounded-full border border-gray-200 bg-gray-50 focus:outline-none focus:ring-2 focus:ring-indigo-500 text-sm"
+                className="w-full pl-10 pr-4 py-2 rounded-full border border-black/10 dark:border-white/15 bg-white dark:bg-white/5 text-sm placeholder:text-stone-400 dark:placeholder:text-zinc-500 focus:outline-none"
               />
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
             </form>
           </div>
         )}
