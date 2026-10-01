@@ -95,18 +95,18 @@ export default function GalleryPage() {
 
             <div className="flex items-center justify-center lg:justify-end gap-6 shrink-0">
               <div className="text-center lg:text-left">
-                <p className="text-2xl font-semibold tabular-nums">{images.length}</p>
+                <p className="text-2xl font-semibold tabular-nums">{images.length || '-'}</p>
                 <p className="text-[11px] uppercase tracking-wider text-gray-400">Moments</p>
               </div>
-              <div className="w-px h-10 bg-black/10 dark:bg-white/15" />
+              <div className="w-px h-10 bg-black/20 dark:bg-stone-500" />
               <div className="text-center lg:text-left">
-                <p className="text-2xl font-semibold tabular-nums">{uniqueYears || '—'}</p>
+                <p className="text-2xl font-semibold tabular-nums">{uniqueYears || '-'}</p>
                 <p className="text-[11px] uppercase tracking-wider text-gray-400">Years</p>
               </div>
             </div>
           </div>
 
-          <div className="mt-8 border-t border-black/5 dark:border-white/10" />
+          <div className="mt-8 mb-4 border-t border-black/20 dark:border-stone-500" />
 
           <div className="flex items-center gap-2 overflow-x-auto py-4 scrollbar-thin">
             {tagOptions.map((tag) => {

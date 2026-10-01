@@ -3,6 +3,7 @@ import { Search, Filter, User, LogOut, Plus, Menu, X, Moon, Sun } from 'lucide-r
 import { useAuth } from '../context/AuthContext'
 import { useTheme } from '../context/ThemeContext'
 import { useNavigate, Link } from 'react-router-dom'
+import MementoLogo from './MementoLogo'
 
 const MONTHS = [
   { value: '', label: 'All months' },
@@ -68,9 +69,7 @@ export default function Navbar({
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16 gap-3">
           <Link to="/" className="flex items-center gap-2.5 shrink-0">
-            <div className="w-9 h-9 rounded-full bg-black dark:bg-white text-white dark:text-black flex items-center justify-center font-serif font-bold text-lg">
-              M
-            </div>
+            <MementoLogo className="w-9 h-9" />
             <div className="hidden sm:block leading-tight">
               <p className="font-serif font-semibold text-[15px] tracking-tight">Memento</p>
               <p className="text-[10px] uppercase tracking-widest text-gray-400 dark:text-gray-500">
